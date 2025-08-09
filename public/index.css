@@ -1,0 +1,236 @@
+:root {
+  --radius: 0.75rem;
+}
+
+/* Reset & base styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0; 
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #20213a;
+  overflow-x: hidden;
+}
+
+/* Background Layers */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  background: url('image.png') center center / cover no-repeat;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(99,89,237,0.65), rgba(72,203,237,0.32));
+  z-index: 1;
+}
+
+/* Main layout */
+.container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100vh;
+  padding: 0 8vw;
+  z-index: 2;
+  min-height: 100vh;
+}
+
+/* Left Section */
+.left {
+  flex: 1 1 44%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-inner {
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Headings with reduced spacing */
+.left h1 {
+  font-size: 4rem;
+  margin-bottom: 0.05em;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.left h1 .big {
+  display: block;
+  font-size: inherit;
+  color: #cecfff;
+  font-weight: 700;
+  margin-top: 0.02em;
+}
+
+/* Paragraph with reduced margins */
+.left p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  margin-top: 0.5em;
+  margin-bottom: 1rem;
+  color: #eee;
+  max-width: 470px;
+}
+
+/* Updated CTA buttons container */
+.cta-buttons {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+/* Updated 'Get Started Free' button styles */
+.btn-get-started {
+  display: inline-block;
+  padding: 1.25rem 2.5rem;
+  background-color: #fff;
+  color: #5f65ee;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for the 'Get Started Free' button */
+.btn-get-started:hover {
+  background-color: #4b52e6;
+  color: white;
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.disabled {
+  padding: 1.25rem 2.5rem;
+  background: #ccc;
+  color: #999;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: not-allowed;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Right section and features grid */
+.right {
+  flex: 1 1 56%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 400px;
+  height: 100vh;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  width: 560px;
+  justify-items: end;
+}
+
+/* Feature Box design with animation */
+.feature-box {
+  background: rgba(255,255,255,0.23);
+  border-radius: var(--radius, 0.75rem);
+  box-shadow: 0 4px 16px rgba(49,50,109,0.14);
+  border: 1.5px solid rgba(160,180,255,0.16);
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 120px;
+  width: 300px;
+  text-align: center;
+  backdrop-filter: blur(7px);
+  justify-content: flex-start;
+  margin: 0;
+
+  /* Apply the faster animation */
+  animation: float 2s ease-in-out infinite; 
+}
+
+/* Add different animation delays to each box for a staggered effect */
+.features-grid .feature-box:nth-child(2) { animation-delay: 0.5s; }
+.features-grid .feature-box:nth-child(3) { animation-delay: 1s; }
+.features-grid .feature-box:nth-child(4) { animation-delay: 1.5s; }
+
+
+/* The new, faster keyframes for the animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px); /* Increased the distance for a more noticeable bounce */
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .features-grid {
+    width: 92vw;
+  }
+  .feature-box {
+    width: 38vw;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 950px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .left {
+    min-height: 400px;
+  }
+  .right {
+    min-width: unset;
+    height: auto;
+    margin-top: 2rem;
+    justify-content: center;
+  }
+  .features-grid {
+    width: 90vw;
+    grid-template-columns: 1fr;
+  }
+  .feature-box {
+    width: 92vw;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 1vw;
+  }
+  .left h1 {
+    font-size: 2.3rem;
+  }
+}

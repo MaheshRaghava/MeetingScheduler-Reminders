@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Signup - MeetingScheduler</title>
+  <style>
+    :root {
+      --main-bg: linear-gradient(135deg, #7e75f9, #a87ff3);
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --input-bg: rgba(255, 255, 255, 0.12);
+      --text-color: #ffffff;
+      --accent: #cecfff;
+      --button-bg: #6573FF;
+      --button-hover: #4b5be5;
+      --border: rgba(255, 255, 255, 0.15);
+      --error: #ff6b6b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--main-bg);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+    }
+
+    .container {
+      width: 350px;
+      height: 500px;
+      perspective: 1000px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .form-box {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      padding: 30px;
+      border: 1px solid var(--border);
+    }
+
+    .form-box h1 {
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #eee;
+      margin-bottom: 20px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .input-group {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.8rem;
+      height: 16px;
+      margin-top: 2px;
+      margin-left: 5px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .neumorphic-input {
+      background: var(--input-bg);
+      border: none;
+      outline: none;
+      padding: 12px 15px;
+      width: 100%;
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text-color);
+      box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), inset -3px -3px 6px rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+
+    .neumorphic-input::placeholder {
+      color: #ccc;
+    }
+
+    .neumorphic-input:focus {
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1), inset -1px -1px 3px rgba(255,255,255,0.1);
+      outline: 2px solid var(--button-bg);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 5px;
+      font-size: 13px;
+      color: #eee;
+    }
+
+    .form-options label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .form-options a {
+      text-decoration: underline;
+      color: #d3dcff;
+      cursor: pointer;
+    }
+
+    .neumorphic-button {
+      margin-top: 15px;
+      padding: 12px;
+      width: 100%;
+      background: var(--button-bg);
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .neumorphic-button:hover {
+      background: var(--button-hover);
+    }
+
+    .neumorphic-button:disabled {
+      background: #535353;
+      cursor: not-allowed;
+    }
+
+    .toggle-text {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .toggle-text span {
+      font-weight: bold;
+      text-decoration: underline;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .signup-box {
+      transform: rotateY(180deg);
+    }
+
+    .status-message {
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .status-error {
+      color: var(--error);
+    }
+
+    .status-success {
+      color: #a3ffa3;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <!-- Login Form -->
+      <div class="form-box login-box">
+        <h1>MS&R Login</h1>
+        <div class="tagline">Stay connected. Stay reminded!</div>
+        
+        <div class="input-group">
+          <input type="email" id="login-email" class="neumorphic-input" placeholder="Email" required autocomplete="username">
+          <div id="login-email-error" class="error-message"></div>
+        </div>
+        
+        <div class="input-group">
+          <input type="password" id="login-password" class="neumorphic-input" placeholder="Password" required autocomplete="current-password">
+          <div id="login-password-error" class="error-message"></div>
+        </div>
+        
+        <div class="form-options">
+          <label><input type="checkbox" id="remember-me"> Remember Me</label>
+          <a href="#" id="forgot-password">Forgot Password?</a>
+        </div>
+
+        <button class="neumorphic-button" id="login-btn">
+          <span id="login-btn-text">Sign In</span>
+        </button>
+        
+        <div id="login-status" class="status-message"></div>
+        
+        <div class="toggle-text">
+          Don't have an account? <span id="show-signup">Sign Up</span>
+        </div>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="form-box signup-box">
+        <h1>Sign Up</h1>
+        <div class="tagline">Join now and simplify your scheduling!</div>
+        
+        <div class="input-group">
+          <input type="text" id="signup-name" class="neumorphic-input" placeholder="Full Name" required autocomplete="name">
+          <div id="signup-name-error" class="error-message"></div>
+        </div>
+        
+        <div class="input-group">
+          <input type="email" id="signup-email" class="neumorphic-input" placeholder="Email" required autocomplete="email">
+          <div id="signup-email-error" class="error-message"></div>
+        </div>
+        
+        <div class="input-group">
+          <input type="password" id="signup-password" class="neumorphic-input" placeholder="Password (min 6 characters)" required autocomplete="new-password">
+          <div id="signup-password-error" class="error-message"></div>
+        </div>
+        
+        <button class="neumorphic-button" id="signup-btn">
+          <span id="signup-btn-text">Register</span>
+        </button>
+        
+        <div id="signup-status" class="status-message"></div>
+        
+        <div class="toggle-text">
+          Already have an account? <span id="show-login">Login</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const card = document.getElementById('card');
+    const loginBtn = document.getElementById('login-btn');
+    const loginBtnText = document.getElementById('login-btn-text');
+    const signupBtn = document.getElementById('signup-btn');
+    const signupBtnText = document.getElementById('signup-btn-text');
+    const showSignup = document.getElementById('show-signup');
+    const showLogin = document.getElementById('show-login');
+    const rememberMe = document.getElementById('remember-me');
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const loginStatus = document.getElementById('login-status');
+    const signupStatus = document.getElementById('signup-status');
+
+    // Flip card between login/signup
+    function flipCard() {
+      card.classList.toggle('flipped');
+      loginStatus.textContent = '';
+      signupStatus.textContent = '';
+      clearErrors();
+    }
+
+    // Clear all error messages
+    function clearErrors() {
+      document.querySelectorAll('.error-message').forEach(el => {
+        el.textContent = '';
+      });
+    }
+
+    // Remember me functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('rememberEmail');
+      if (savedEmail) {
+        loginEmail.value = savedEmail;
+        rememberMe.checked = true;
+        loginPassword.focus();
+      } else {
+        loginEmail.focus();
+      }
+    });
+
+    // Handle email input to auto-focus password
+    loginEmail.addEventListener('input', (e) => {
+      if (e.target.value.includes('@')) {
+        loginPassword.focus();
+      }
+    });
+
+    // Force focus on password field when clicked
+    loginPassword.addEventListener('click', () => {
+      loginPassword.focus();
+    });
+
+    // Handle form submission
+    function handleFormSubmit(form, handler) {
+      return async function(e) {
+        e.preventDefault();
+        clearErrors();
+        
+        const inputs = form.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+          if (!input.value.trim()) {
+            const errorEl = document.getElementById(`${input.id}-error`);
+            if (errorEl) errorEl.textContent = 'This field is required';
+            isValid = false;
+          }
+        });
+        
+        if (!isValid) return false;
+        
+        const button = form.querySelector('button');
+        const buttonText = button.querySelector('span');
+        const originalText = buttonText.textContent;
+        
+        button.disabled = true;
+        buttonText.innerHTML = `<span class="loading-spinner"></span>Processing...`;
+        
+        try {
+          await handler();
+          return true;
+        } catch (err) {
+          console.error('Form error:', err);
+          return false;
+        } finally {
+          buttonText.textContent = originalText;
+          button.disabled = false;
+        }
+      };
+    }
+
+    // Login function
+    loginBtn.addEventListener('click', handleFormSubmit(document.querySelector('.login-box'), async () => {
+      const email = loginEmail.value.trim().toLowerCase();
+      const password = loginPassword.value;
+      
+      if (!email.includes('@') || !email.includes('.')) {
+        loginStatus.textContent = 'Please enter a valid email';
+        loginStatus.className = 'status-message status-error';
+        return;
+      }
+      
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          loginStatus.textContent = 'Login successful! Redirecting...';
+          loginStatus.className = 'status-message status-success';
+          
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          
+          if (rememberMe.checked) {
+            localStorage.setItem('rememberEmail', email);
+          }
+          
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        } else if (data.needsVerification) {
+          window.location.href = `email-verification.html?email=${encodeURIComponent(email)}`;
+        } else {
+          throw new Error(data.error || "Login failed");
+        }
+      } catch (err) {
+        loginStatus.textContent = err.message;
+        loginStatus.className = 'status-message status-error';
+        loginPassword.value = '';
+        loginPassword.focus();
+      }
+    }));
+
+    // Signup function
+    signupBtn.addEventListener('click', handleFormSubmit(document.querySelector('.signup-box'), async () => {
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim().toLowerCase();
+      const password = document.getElementById('signup-password').value;
+      
+      // Client-side validation
+      if (name.length < 2) {
+        signupStatus.textContent = 'Name must be at least 2 characters';
+        signupStatus.className = 'status-message status-error';
+        return;
+      }
+
+      if (password.length < 6) {
+        signupStatus.textContent = 'Password must be at least 6 characters';
+        signupStatus.className = 'status-message status-error';
+        return;
+      }
+      
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          signupStatus.textContent = data.message;
+          signupStatus.className = 'status-message status-success';
+          
+          setTimeout(() => {
+            window.location.href = `email-verification.html?email=${encodeURIComponent(email)}`;
+          }, 1500);
+        } else {
+          // Show detailed error from backend
+          const errorMsg = data.error || data.message || "Registration failed";
+          signupStatus.textContent = errorMsg;
+          signupStatus.className = 'status-message status-error';
+          
+          // Highlight problematic field if specified in error
+          if (errorMsg.toLowerCase().includes('email')) {
+            document.getElementById('signup-email-error').textContent = errorMsg;
+            document.getElementById('signup-email').focus();
+          } else if (errorMsg.toLowerCase().includes('password')) {
+            document.getElementById('signup-password-error').textContent = errorMsg;
+            document.getElementById('signup-password').focus();
+          }
+        }
+      } catch (err) {
+        signupStatus.textContent = "Network error - please try again";
+        signupStatus.className = 'status-message status-error';
+        console.error('Signup error:', err);
+      }
+    }));
+
+    // Event listeners
+    showSignup.addEventListener('click', flipCard);
+    showLogin.addEventListener('click', flipCard);
+    
+    document.getElementById('forgot-password').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert("Password reset link will be sent to your email");
+    });
+  </script>
+</body>
+</html>
