@@ -441,6 +441,7 @@
   <div class="dashboard-header-container hide-when-form-open">
     <div class="dashboard-header">
       <div class="dashboard-title">
+        <p class="dashboard-subtitle" id="welcomeMessage"></p>
         <h1>Meeting Dashboard</h1>
         <p class="dashboard-subtitle">Manage your meetings and stay organized</p>
       </div>
@@ -537,6 +538,20 @@
     if (!token) {
       window.location.href = 'login-signup.html';
     }
+    // Get and display the user's name
+const userString = localStorage.getItem('user');
+const welcomeMessageElement = document.getElementById('welcomeMessage');
+if (userString) {
+    try {
+        const user = JSON.parse(userString);
+        if (user && user.name) {
+            welcomeMessageElement.textContent = `Welcome back, ${user.name}!`;
+        }
+    } catch (error) {
+        console.error('Failed to parse user data from local storage:', error);
+        welcomeMessageElement.textContent = 'Welcome back!';
+    }
+}
 
     // Toggle form visibility and hide other content
     function toggleFormVisibility(show) {
