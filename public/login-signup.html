@@ -86,6 +86,7 @@
     .input-group {
       width: 100%;
       margin-bottom: 10px;
+      position: relative;
     }
 
     .error-message {
@@ -102,7 +103,7 @@
       background: var(--input-bg);
       border: none;
       outline: none;
-      padding: 12px 15px;
+      padding: 12px 40px 12px 15px;
       width: 100%;
       border-radius: 10px;
       font-size: 14px;
@@ -118,6 +119,31 @@
     .neumorphic-input:focus {
       box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1), inset -1px -1px 3px rgba(255,255,255,0.1);
       outline: 2px solid var(--button-bg);
+    }
+
+    /* Password toggle styles */
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      padding: 4px;
+    }
+
+    .password-toggle:hover {
+      opacity: 1;
+    }
+
+    .password-toggle svg {
+      width: 20px;
+      height: 20px;
+      display: block;
     }
 
     .form-options {
@@ -228,7 +254,15 @@
         </div>
         
         <div class="input-group">
-          <input type="password" id="login-password" class="neumorphic-input" placeholder="Password" required autocomplete="current-password">
+          <div class="password-container">
+            <input type="password" id="login-password" class="neumorphic-input" placeholder="Password" required autocomplete="current-password">
+            <button type="button" class="password-toggle" id="login-toggle" aria-label="Show password">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
           <div id="login-password-error" class="error-message"></div>
         </div>
         
@@ -264,7 +298,15 @@
         </div>
         
         <div class="input-group">
-          <input type="password" id="signup-password" class="neumorphic-input" placeholder="Password (min 6 characters)" required autocomplete="new-password">
+          <div class="password-container">
+            <input type="password" id="signup-password" class="neumorphic-input" placeholder="Password (min 6 characters)" required autocomplete="new-password">
+            <button type="button" class="password-toggle" id="signup-toggle" aria-label="Show password">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
           <div id="signup-password-error" class="error-message"></div>
         </div>
         
@@ -296,6 +338,43 @@
     const loginStatus = document.getElementById('login-status');
     const signupStatus = document.getElementById('signup-status');
 
+    // Password toggle functionality
+    function setupPasswordToggle(toggleId, inputId) {
+      const toggle = document.getElementById(toggleId);
+      const input = document.getElementById(inputId);
+      
+      toggle.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        
+        // Update the icon
+        toggle.innerHTML = isPassword ? 
+          `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+          </svg>` :
+          `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>`;
+      });
+    }
+
+    // Initialize password toggles
+    document.addEventListener('DOMContentLoaded', () => {
+      setupPasswordToggle('login-toggle', 'login-password');
+      setupPasswordToggle('signup-toggle', 'signup-password');
+      
+      const savedEmail = localStorage.getItem('rememberEmail');
+      if (savedEmail) {
+        loginEmail.value = savedEmail;
+        rememberMe.checked = true;
+        loginPassword.focus();
+      } else {
+        loginEmail.focus();
+      }
+    });
+
     // Flip card between login/signup
     function flipCard() {
       card.classList.toggle('flipped');
@@ -310,25 +389,6 @@
         el.textContent = '';
       });
     }
-
-    // Remember me functionality
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedEmail = localStorage.getItem('rememberEmail');
-      if (savedEmail) {
-        loginEmail.value = savedEmail;
-        rememberMe.checked = true;
-        loginPassword.focus();
-      } else {
-        loginEmail.focus();
-      }
-    });
-
-    // Handle email input to auto-focus password
-    //loginEmail.addEventListener('input', (e) => {
-      //if (e.target.value.includes('@')) {
-        //loginPassword.focus();
-      //}
-    //});
 
     // Force focus on password field when clicked
     loginPassword.addEventListener('click', () => {
