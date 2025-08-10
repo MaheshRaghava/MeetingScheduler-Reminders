@@ -4,20 +4,17 @@ const Meeting = require('../models/Meeting');
 const authenticateToken = require('../middleware/authMiddleware');
 const { sendMeetingInvite } = require('../services/emailService');
 
-// GET /api/meetings - return filtered meetings
+// GET /api/meetings - Return only meetings created by the logged-in user
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const userEmail = req.user.email;
     const { filter } = req.query;
     const now = new Date();
 
-    let query = {
-      $or: [
-        { createdBy: userEmail },
-        { participants: userEmail }
-      ]
-    };
+    // Only show meetings created by this user (changed from $or query)
+    let query = { createdBy: userEmail };
 
+    // Apply time filters if specified
     if (filter === 'upcoming') query.datetime = { $gt: now };
     if (filter === 'past') query.datetime = { $lte: now };
 
@@ -32,33 +29,33 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// POST /api/meetings - create new meeting with robust email handling
+// POST /api/meetings - Create new meeting (no changes needed)
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { title, description, datetime, participants, duration } = req.body;
     const createdBy = req.user.email;
-    const organizerName = req.user.name; // Get organizer name from user
+    const organizerName = req.user.name;
 
     // Validation
     if (!title?.trim()) return res.status(400).json({ error: 'Meeting title is required' });
     if (!datetime) return res.status(400).json({ error: 'Meeting date/time is required' });
     if (!Array.isArray(participants)) return res.status(400).json({ error: 'Participants must be an array' });
 
-    // Create meeting with all required fields
+    // Create meeting
     const meeting = new Meeting({
       title: title.trim(),
       description: description?.trim() || '',
       datetime,
-      duration: duration || 60, // Default to 60 minutes if not provided
+      duration: duration || 60,
       participants: participants.map(p => p.trim()),
       createdBy,
-      organizerName, // Include organizer name
+      organizerName,
       reminderSent: false
     });
 
     await meeting.save();
 
-    // Send invites using the centralized email service
+    // Send invites (emailService.js already handles excluding creator)
     const emailResults = await sendMeetingInvite(meeting);
 
     res.status(201).json({
@@ -71,8 +68,7 @@ router.post('/', authenticateToken, async (req, res) => {
     console.error('Error creating meeting:', err);
     res.status(500).json({ 
       error: 'Server error while creating meeting',
-      details: err.message,
-      solution: 'Check server logs for detailed error information'
+      details: err.message
     });
   }
 });
